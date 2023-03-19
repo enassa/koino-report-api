@@ -10,7 +10,7 @@ app.use(express.static(path.join(__dirname, "client/build")));
 app.get("/api/items", (req, res) => {
   var items = ["Item1", "Item2", "Item3"];
   res.json(items);
-  console.log("Sent list of items");
+  console.log("Sent list of items vercel");
 });
 
 // Handles any requests that don't match the ones above
