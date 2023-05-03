@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const StudentSchema = require("../models/StudentModules");
+const ReportSchema = require("../models/Reportmodel");
 const ConnectDB = require("./DBCOnnection");
 
 exports.loginUser = async (req, res) => {
@@ -12,6 +13,10 @@ exports.loginUser = async (req, res) => {
 
   await ConnectDB(schoolCode, schoolName, className);
   const Student = mongoose.model(extraInfo.className, StudentSchema);
+  const Reports = mongoose.model(
+    "reports_" + extraInfo.className,
+    StudentSchema
+  );
 
   try {
     if (!data?.indexNumber || !data?.password) {

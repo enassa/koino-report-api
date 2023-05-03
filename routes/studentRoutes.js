@@ -36,7 +36,9 @@ router.get("/students/:id", (req, res, next) => {
 // ADD SURVEY
 router.post("/students", studentDataController.uploadStudentData);
 
-router.post("/reports", reportsControler.uploadReportCards);
+router.post("/upload-reports", reportsControler.uploadReportCards);
+
+router.post("/reports", reportsControler.getReportList);
 
 // UPDATE SURVEY
 router.put("/students/:id", (req, res, next) => {

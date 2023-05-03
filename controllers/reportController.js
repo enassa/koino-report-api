@@ -152,6 +152,19 @@ exports.uploadReportCards = function (req, res) {
   }
 };
 
+exports.getReportList = async function (req, res) {
+  const { Unique_Id, schoolCode, schoolName, className } = req.body;
+  await ConnectDB(schoolCode, schoolName, className);
+  const reports = await Reports.find({ Unique_Id });
+  if (reports) {
+    res.status(201).json({
+      data: reports,
+      extraInfo,
+      success: true,
+      status: 201,
+    });
+  }
+};
 // Display detail page for a specific Genre.
 // exports.genre_detail = function (req, res) {
 //   res.send("NOT IMPLEMENTED: Genre detail: " + req.params.id);
