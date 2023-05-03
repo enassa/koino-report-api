@@ -27,6 +27,10 @@ app.use(
   })
 );
 
+app.get("/", (req, res) => {
+  res.sendFile("./views/home.html", { root: __dirname });
+});
+
 app.use(bodyParser.json());
 app.use(fileupload());
 const routes = require("./routes/studentRoutes");
