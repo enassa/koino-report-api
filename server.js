@@ -1,42 +1,52 @@
-const http = require('http')
-const fs = require('fs')
-const server = http.createServer((req, res)=>{
-     res.setHeader('Content-type', 'text/html')
+const express = require("express");
+const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
+const fileupload = require("express-fileupload");
+const cors = require("cors");
 
-     let path = './views/'
+// SET UP EXPRESS APP
+const app = express();
 
-     switch (req.url) {
-         case '/':
-             path += 'home.html'
-             res.statusCode =  200
-             break;
-         case '/about':
-             path += 'about.html'
-             res.statusCode =  200
-             break;
-         case '/about-me':
-             res.statusCode = 301
-             res.setHeader('Location','about')
-             res.end()
-             break;
-         case '/contact':
-             path += 'contact.html'
-             res.statusCode =  200
-             break;
-         default:
-             path += '404.html'
-             res.statusCode =  404
-             break;
-     }
-     fs.readFile(path, (err, data) => {
-        if(err){
-            console.log(err)
-        }else{
-            res.end(data)
-        }
-     })
-    
-})
-server.listen(3033, 'localhost',() => {
-    console.log('listening to port 3000')
-})
+// CONNECT TO MONGOOSE
+// mongoose.connect("mongodb://localhost/student");
+// mongoose.Promise = global.Promise;
+// console.log("--", conection.db);
+// const getConnection = async () => {
+//   conection.then((res) => {
+//     console.log("kkk", mongoose.res);
+//     return res;
+//   });
+// };
+// getConnection();
+// module.exports = () => {
+//   return getConnection();
+// };
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+  })
+);
+
+app.use(bodyParser.json());
+app.use(fileupload());
+const routes = require("./routes/studentRoutes");
+
+// INITIALIZE ROUTES
+app.use("/api", routes);
+
+// ERROR HANDLING
+app.use((error, req, res, next) => {
+  res.status(422).send({
+    error: {
+      message: error.message,
+      statusCode: 422,
+      status: false,
+    },
+  });
+});
+let myName = 0;
+
+// LISTEN FOR ROUTES
+app.listen(process.env.port || "3032", (req, res) => {
+  console.log("now listening on port", "3032,", req);
+});
