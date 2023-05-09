@@ -13,10 +13,6 @@ exports.loginUser = async (req, res) => {
 
   await ConnectDB(schoolCode, schoolName, className);
   const Student = mongoose.model(extraInfo.className, StudentSchema);
-  const Reports = mongoose.model(
-    "reports_" + extraInfo.className,
-    StudentSchema
-  );
 
   try {
     if (!data?.indexNumber || !data?.password) {

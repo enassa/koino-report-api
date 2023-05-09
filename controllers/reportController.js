@@ -14,6 +14,7 @@ const { response } = require("express");
 const { file } = require("tmp");
 const PDFJS = require("pdfjs");
 let Reports;
+const ConnectDB = require("./DBCOnnection");
 
 // Display list of all Genre.
 exports.uploadReportCards = function (req, res) {
@@ -86,7 +87,6 @@ exports.uploadReportCards = function (req, res) {
             });
             successUploads.push({
               name: singleFile.name,
-              error: "File already exist",
               nameOndisk: newFileName,
             });
             console.log("successUploads", successUploads);
@@ -154,16 +154,104 @@ exports.uploadReportCards = function (req, res) {
 
 exports.getReportList = async function (req, res) {
   const { Unique_Id, schoolCode, schoolName, className } = req.body;
-  await ConnectDB(schoolCode, schoolName, className);
+  const collectionName = `reports_${className}`;
+  console.log(collectionName);
+  // return;
+  // const Reports = mongoose.model(className, ReportSchema);
+  const connection = await ConnectDB(schoolCode, schoolName, collectionName);
+  const Reports = mongoose.model(collectionName, ReportSchema);
+  console.log(Reports, connection, mongoose.models, Unique_Id);
   const reports = await Reports.find({ Unique_Id });
+  console.log(reports, Unique_Id);
   if (reports) {
     res.status(201).json({
       data: reports,
-      extraInfo,
       success: true,
       status: 201,
     });
   }
+};
+
+exports.downloadReport = async (req, res) => {
+  const {
+    Unique_Id,
+    Semester,
+    FormNumber,
+    File_Name,
+    schoolCode,
+    schoolName,
+    Graduation_Year,
+    ReportId,
+  } = req.body;
+  const collectionName = `reports_class_of_${Graduation_Year}`;
+  const connection = ConnectDB(schoolCode, schoolName, collectionName);
+  // Function to download a file
+  var downloadFile = () => {
+    const filePath = path.join(__dirname, "uploads", File_Name); // Assuming files are stored in the "uploads" directory
+    fs.access(filePath, fs.constants.F_OK, async (err) => {
+      if (err) {
+        // File not found
+        return res.status(404).send("File not found.");
+      }
+
+      // Set appropriate headers for file download
+      res.setHeader("Content-Type", "application/octet-stream");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${File_Name}"`
+      );
+
+      // Create a read stream from the file and pipe it to the response
+      const fileStream = fs.createReadStream(filePath);
+      await fileStream.pipe(res);
+    });
+  };
+
+  try {
+    const Reports = mongoose.model(collectionName, ReportSchema);
+    var ObjectId = require("mongodb").ObjectId;
+    var o_id = new ObjectId(ReportId);
+
+    const oldReport = await Reports.findOne({ _id: ObjectId(ReportId) });
+    if (!oldReport) {
+      throw Error("The requested report does not exist");
+    }
+    const currentDownloadsLeft = oldReport.DownloadsLeft;
+    const downloadsCount = oldReport.DownloadCountt;
+    let Locked = oldReport.Locked;
+    if (Locked || currentDownloadsLeft === 0) {
+      throw Error("You do not have access to this report");
+      // Hacking attempt
+    }
+    const newDownloadsLeft = currentDownloadsLeft - 1;
+    if (newDownloadsLeft === 0) {
+      Locked = true;
+    }
+    const updateDoc = {
+      $set: {
+        Locked,
+        DownloadsLeft: newDownloadsLeft,
+        DownlodCount: downloadsCount + 1,
+      },
+    };
+    // upsert:false means do not create property if it does not exist
+    const options = { upsert: false, new: true };
+    const report = await Reports.findOneAndUpdate(
+      { _id: ReportId },
+      updateDoc,
+      options
+    );
+    console.log(report, currentDownloadsLeft, newDownloadsCount);
+    await downloadFile();
+  } catch (error) {
+    res.status(200).json({
+      message: error.message,
+      success: false,
+      status: 200,
+    });
+  }
+
+  // Reports.findOneAndUpdate;
 };
 // Display detail page for a specific Genre.
 // exports.genre_detail = function (req, res) {

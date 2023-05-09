@@ -35,7 +35,7 @@ exports.uploadStudentData = function (req, res) {
       let studentYear;
       if (currentYear < graduationYear) {
         studentYear = totalNumberOfYears - (graduationYear - currentYear);
-        studentYear += 1;
+        // studentYear += 1;
         return studentYear;
       }
       return "GRADUATED";

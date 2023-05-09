@@ -28,6 +28,7 @@ let Student;
 var studentDataController = require("../controllers/studentDataController");
 var reportsControler = require("../controllers/reportController");
 var authenticationControlller = require("../controllers/authenticationController");
+var transactionController = require("../controllers/TransactionController");
 router.get("/students/:id", (req, res, next) => {
   console.log("hello");
   res.send({ type: "GET" });
@@ -39,6 +40,12 @@ router.post("/students", studentDataController.uploadStudentData);
 router.post("/upload-reports", reportsControler.uploadReportCards);
 
 router.post("/reports", reportsControler.getReportList);
+
+router.post("/recp", transactionController.RecordPayment);
+
+router.post("/transactions", transactionController.getTransactions);
+
+router.post("/dr", reportsControler.downloadReport);
 
 // UPDATE SURVEY
 router.put("/students/:id", (req, res, next) => {

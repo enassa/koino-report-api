@@ -33,7 +33,7 @@ app.get("/", (req, res) => {
 
 app.use(bodyParser.json());
 app.use(fileupload());
-const routes = require("./routes/studentRoutes");
+const routes = require("./routes/AllRoutes");
 
 // INITIALIZE ROUTES
 app.use("/api", routes);
