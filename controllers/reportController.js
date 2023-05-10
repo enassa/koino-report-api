@@ -15,6 +15,7 @@ const { file } = require("tmp");
 const PDFJS = require("pdfjs");
 let Reports;
 const ConnectDB = require("./DBCOnnection");
+const { mongPath } = require("../constants");
 
 // Display list of all Genre.
 exports.uploadReportCards = function (req, res) {
@@ -119,7 +120,7 @@ exports.uploadReportCards = function (req, res) {
     };
 
     // ======================= Connect file information DB ========================
-    let connectionUrl = `mongodb://localhost/${schoolCode}_${schoolName}`;
+    let connectionUrl = `${mongPath}/${schoolCode}_${schoolName}`;
     let connected = mongoose.connect(connectionUrl);
     mongoose.Promise = global.Promise;
     connected.then(() => {

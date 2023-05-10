@@ -12,6 +12,7 @@ var fs = require("fs");
 const multer = require("multer");
 const { response } = require("express");
 const { file } = require("tmp");
+const { mongPath } = require("../constants");
 let Student;
 const totalNumberOfYears = 3;
 
@@ -171,7 +172,7 @@ exports.uploadStudentData = function (req, res) {
       });
     }
   };
-  let connectionUrl = `mongodb://localhost/${schoolCode}_${schoolName}`;
+  let connectionUrl = `${mongPath}/${schoolCode}_${schoolName}`;
   let connected = mongoose.connect(connectionUrl);
   mongoose.Promise = global.Promise;
   connected.then(() => {

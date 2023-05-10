@@ -1,7 +1,9 @@
 const mongoose = require("mongoose");
+const { mongPath } = require("../constants");
 
 const ConnectDB = async (schoolCode, schoolName, collectionName) => {
-  let connectionUrl = `mongodb://localhost/${schoolCode}_${schoolName}`;
+  let connectionUrl = `${mongPath}/${schoolCode}_${schoolName}`;
+  // let connectionUrl = `mongodb://localhost/${schoolCode}_${schoolName}`;
   let connected = mongoose.connect(connectionUrl);
   mongoose.Promise = global.Promise;
   connected.then(() => {
