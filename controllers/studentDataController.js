@@ -191,23 +191,6 @@ exports.uploadStudentData = function (req, res) {
         });
     });
   });
-
-  // con.on("open", () => {
-  //   con.db.listCollections().toArray((err, collections) => {
-  //     if (err) {
-  //       console.log(err);
-  //     }
-  //     console.log(collections);
-  //   });
-  // });
-
-  // survey.save();
-
-  // Student.create(req.body)
-  //   .then((student) => {
-  //     res.send(req.files.file.name);
-  //   })
-  //   .catch(next);
 };
 
 // Display detail page for a specific Genre.
