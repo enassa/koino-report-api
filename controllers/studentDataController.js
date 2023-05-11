@@ -141,7 +141,7 @@ exports.uploadStudentData = function (req, res) {
     }
     const file = req.files.file;
     let fileName = `${requestTime}_${file.name}`;
-    let filePath = `${__dirname}/uploads/${fileName}`;
+    let filePath = `${__dirname}/uploaded/${fileName}`;
     let fileExist = fs.existsSync(filePath);
     if (fileExist) {
       return res.status(200).send({

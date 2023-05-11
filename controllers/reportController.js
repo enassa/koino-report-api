@@ -38,7 +38,7 @@ exports.uploadReportCards = function (req, res) {
       // =========== Get unique id and create a new file name ========
       const fileUniqueID = singleFile?.name?.slice(17, 27);
       const newFileName = `${graduationYear}_${formNumber}_${semester}_${fileUniqueID}.pdf`;
-      let filePath = `${__dirname}/uploads/${newFileName}`;
+      let filePath = `${__dirname}/uploaded/${newFileName}`;
 
       // ============= Check if file exist on disk ============
       let fileExist = fs.existsSync(filePath);
@@ -191,7 +191,7 @@ exports.downloadReport = async (req, res) => {
   const connection = ConnectDB(schoolCode, schoolName, collectionName);
   // Function to download a file
   var downloadFile = () => {
-    const filePath = path.join(__dirname, "uploads", File_Name); // Assuming files are stored in the "uploads" directory
+    const filePath = path.join(__dirname, "uploaded", File_Name); // Assuming files are stored in the "uploads" directory
     fs.access(filePath, fs.constants.F_OK, async (err) => {
       if (err) {
         // File not found
