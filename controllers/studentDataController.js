@@ -18,7 +18,7 @@ const totalNumberOfYears = 3;
 
 // Display list of all Genre.
 exports.uploadStudentData = function (req, res) {
-  console.log(req);
+  // console.log(req);
   const alls = [];
 
   const saveDataInDb = (sheetNo, rowNo, className, studentData, extraInfo) => {
@@ -28,7 +28,7 @@ exports.uploadStudentData = function (req, res) {
       lastName: allNames.shift(),
       otherNames: allNames.join(" "),
     };
-    console.log(extraInfo.className.split("_")[2]);
+    // console.log(extraInfo.className.split("_")[2]);
     const graduationYear = extraInfo.className.split("_")[2];
     const enrollmentYear = graduationYear - totalNumberOfYears;
     const getCurrentYear = () => {
@@ -104,7 +104,7 @@ exports.uploadStudentData = function (req, res) {
     // }
     // console.log(`sheet ${sheetNo}`, `row ${rowNo}`, "==", className, studentData);
     alls.push(studObj);
-    console.log(studObj);
+    // console.log(studObj);
     return { status: "succes", data: studObj };
   };
   const convertExcelToJson = async (path, extraInfo) => {
@@ -114,6 +114,7 @@ exports.uploadStudentData = function (req, res) {
     let properties = Object.keys(allClassesData);
     properties.map((className, index) => {
       allClassesData[className].map((studentData, count) => {
+        console.log(count);
         saveDataInDb(index, count, className, studentData, extraInfo);
       });
     });

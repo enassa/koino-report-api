@@ -93,7 +93,7 @@ exports.uploadReportCards = function (req, res) {
               name: singleFile.name,
               nameOndisk: newFileName,
             });
-            console.log("successUploads", successUploads);
+            // console.log("successUploads", successUploads);
           } catch (error) {
             failedUploads.push({
               name: singleFile.name,
