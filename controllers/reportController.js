@@ -10,12 +10,15 @@ var root = path.dirname(require.main.filename);
 var tmp = require("tmp");
 var fs = require("fs");
 const multer = require("multer");
-const { response } = require("express");
+// const { response } = require("express");
 const { file } = require("tmp");
 const PDFJS = require("pdfjs");
 let Reports;
 const ConnectDB = require("./DBCOnnection");
 const { mongPath } = require("../constants");
+const admin = require("firebase-admin");
+const Busboy = require("busboy");
+const os = require("os");
 
 // Display list of all Genre.
 exports.uploadReportCards = function (req, res) {
@@ -283,3 +286,106 @@ exports.downloadReport = async (req, res) => {
 //   const texts = await Promise.all(pagePromises);
 //   return texts.join("");
 // };
+
+// Function to handle file uploads
+
+// Express route handler for file upload
+exports.uploadFileToFirebase = (req, res) => {
+  // Initialize Firebase Admin SDK
+  const firebaseConfig = {
+    apiKey: "AIzaSyCVxc6xzt6EDgyGKiAwSeDZqkXu9Q_Ha8Q",
+    authDomain: "koinoreport-6e006.firebaseapp.com",
+    projectId: "koinoreport-6e006",
+    storageBucket: "koinoreport-6e006.appspot.com",
+    messagingSenderId: "491050722928",
+    appId: "1:491050722928:web:860f184131a446749e36b5",
+    measurementId: "G-15BVY9ZZVP",
+  };
+  admin.initializeApp(firebaseConfig);
+  // admin.initializeApp({
+  //   credential: admin.credential.applicationDefault(),
+  //   storageBucket: "your-storage-bucket-url",
+  // });
+
+  const bucket = admin.storage().bucket();
+
+  // Connect to MongoDB
+  mongoose.connect("mongodb://localhost:27017/fileuploads", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
+
+  const FileSchema = new mongoose.Schema({
+    filename: String,
+    originalname: String,
+    mimetype: String,
+    size: Number,
+    createdAt: { type: Date, default: Date.now },
+  });
+
+  const File = mongoose.model("File", FileSchema);
+
+  const busboy = Busboy({ headers: req.headers });
+  console.log("vvvvvvvvvvvvvvvvvvvvvvvvvvvvv");
+
+  function uploadFileToFirebaseStorage(file, filename) {
+    console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+
+    return new Promise((resolve, reject) => {
+      const filePath = path.join(os.tmpdir(), filename);
+      const writeStream = fs.createWriteStream(filePath);
+
+      file
+        .pipe(writeStream)
+        .on("finish", () => {
+          bucket
+            .upload(filePath, { destination: filename })
+            .then(() => {
+              fs.unlink(filePath, (error) => {
+                if (error) {
+                  console.error("Error deleting temporary file:", error);
+                }
+              });
+
+              // Save file details to MongoDB
+              const newFile = new File({
+                filename,
+                originalname: file.originalname,
+                mimetype: file.mimetype,
+                size: file.size,
+              });
+
+              newFile.save((error) => {
+                if (error) {
+                  reject(error);
+                } else {
+                  resolve();
+                }
+              });
+            })
+            .catch((error) => {
+              reject(error);
+            });
+        })
+        .on("error", (error) => {
+          reject(error);
+        });
+    });
+  }
+  console.log("hhhhhhhhhhhhhhhhhhhhhhh");
+  busboy.on("file", (fieldname, file, filename, encoding, mimetype) => {
+    // Handle the file upload here
+    console.log("nnnnnnnnnnnnnnnnnnnnnnnnn");
+    uploadFileToFirebaseStorage(file, filename)
+      .then(() => {
+        res.status(200).json({ message: "File uploaded successfully" });
+      })
+      .catch((error) => {
+        res
+          .status(500)
+          .json({ error: "Failed to upload file", message: error.message });
+      });
+  });
+  // return;
+  req.pipe(busboy);
+};

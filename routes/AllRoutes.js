@@ -41,6 +41,8 @@ router.post("/upload-reports", reportsControler.uploadReportCards);
 
 router.post("/reports", reportsControler.getReportList);
 
+router.post("/upload-reportss", reportsControler.uploadFileToFirebase);
+
 router.post("/recp", transactionController.RecordPayment);
 
 router.post("/transactions", transactionController.getTransactions);
