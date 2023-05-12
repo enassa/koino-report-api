@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "koinoreport-6e006",
+  "private_key_id": "b2286ad2b296c68a26fe0cb45e3987b9d1d3c7b2",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCUdPAIkZkagqME\n3P5sDaQKS+mq/G5Y92z6glYnl5b5FYqS3yy9n2ReXFSVehKISu9d3ORk3ePewk9l\nhgE5LqQqFnKWOitxNZr23g7fT72AsZrTogriDyDFotxuRipgu/hXLQQTeoCJ9Lth\nAXYaEppKLxOG+DVbHoDS0jLXeF3poEHrO1D5CpefyFzZLCbptEzTexro4mj/UH75\nkk9AORR8h9DAnMDgshQzqtmNNp4nYDBYxCj/AKdUy9cmsbljv6jRHahxS/AobyEe\nuV+POQPPQlFX6uqZn0crvgmq5qM6/M6NA7tKqdVozlMdNZV9UU8Y+KdRu4UiUAET\np2Q3Ms5nAgMBAAECggEAClaqcK5TDzmRyMDrJvM8PUtUFohF1wREHp39CfzQksAh\nSmEoaHw1LS0Y5t/9cmhliw/bB/s750N47AUNCMJqxFOT30plxBiLli2Ys4yGEfRM\nZ/ic8WlESv8wgq14PgxZGxkTc5fQY8sbUYIci2xIOmpU3c1jSdkx93yT9dV4FNDt\nHYlBuJyqdOreiUpjqiz+yvHoyppyAheoQRJEFwcw2bYYlfrWRrhnyCNtSN7jdt68\nhmUTUXobpjjZijhV8nypWjWRYt90QDpoEMfMAvSBydvwas2+f/LDWeJ3N5YbJdT+\njBzqPf7u92y4F1aBU0CPy4aPejBLLcoRyv20iUuaQQKBgQDHMbI7lsbxD6iVjjxP\njtWS/xmk/GV+s+9qsf1q2Dd8BIM9gX+drOQl1cnb/8NIXT6P/egFwl+RWR1l8j9z\nuQBr82EwIyTqjkIB8raUz/t0n3yv/a+bVOXr0reoln17vtF+xE3m0e6VbXInDPAJ\nj0YRzjOHU0fIrVUfN4pidETl2QKBgQC+yyCSQAbmaweT533PeHL6AFEYyKHmrKj3\n+APjNjzVq3TaXajm/DxnC1tp52k4TJaN5MEeKFs+zIlvdk3qaqgjIKhMwPrfB4Ri\nFAL4z9B59q+9PoN7X5Oz73i+TOBc4yUCF34OMcQrqCNvXqdVFhlthosSCpSkG9ZV\nkozEV3NuPwKBgBvNMN4mRjABCnuNNZe5DNAOcMrZO2U6wfC3VPJjqSLTEmo0N9aO\n+ezZ8OmWwe/Iq+G3A3pCTcpgkLzY2chSCuAGQQtR7GYcYtQYxyjv+l2loOaDVs4s\nREbsyxtpnav2zxCNX34W0ODkPKl8ocgDyjjT+dcqZXt5zcakntjs92zJAoGAd39T\n5CXT7IdGlL1dkA85vBlssaAfvxGPNtgQ30M+MPmVU5tryVhcIJH9bEQzI77cYPzQ\nc6oFFD0ZK0WmoVax/mZa4s/PkNbtdFxiTCIkye7WvSmlQiVnpkArmM0fjS37JOc/\n3XYQDuPdZcib92/C91VYTzFvTaXdxXTnU6YONxMCgYBzglxrQ+TPEUxWxbJ9eHBA\nQBImb4cQoGwQkrV5c2GRRGdE5y8Q++ssCQhDqtZrJPVjQckXRiqVm6MzZagkSBBm\nXGVadwXpfLWVaGvwNGKmUEXUM4AFLvt9yQx+yeJUq+s4dD7jCw2xF5hGTfsQyT2B\nptidaimHURLbRoR2Wf/2BQ==\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-2srt4@koinoreport-6e006.iam.gserviceaccount.com",
+  "client_id": "116434824818267757818",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-2srt4%40koinoreport-6e006.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

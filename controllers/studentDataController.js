@@ -141,7 +141,7 @@ exports.uploadStudentData = function (req, res) {
     }
     const file = req.files.file;
     let fileName = `${requestTime}_${file.name}`;
-    let filePath = `${__dirname}/uploaded/${fileName}`;
+    let filePath = `${__dirname}/uploads/${fileName}`;
     let fileExist = fs.existsSync(filePath);
     if (fileExist) {
       return res.status(200).send({
@@ -184,7 +184,8 @@ exports.uploadStudentData = function (req, res) {
         .listCollections({ name: className })
         .next((err, names) => {
           if (names) {
-            res.send("Sorry this class has already been created");
+            createCollection();
+            // res.send("Sorry this class has already been created");
             return;
           } else {
             createCollection(); // Student = mongoose.model(extraInfo.className, StudentSchema);

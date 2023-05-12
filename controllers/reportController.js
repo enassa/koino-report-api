@@ -19,6 +19,7 @@ const { mongPath } = require("../constants");
 const admin = require("firebase-admin");
 const Busboy = require("busboy");
 const os = require("os");
+let storageAppsCount = 0;
 
 // Display list of all Genre.
 exports.uploadReportCards = function (req, res) {
@@ -148,7 +149,7 @@ exports.uploadReportCards = function (req, res) {
       });
     });
   } catch (error) {
-    res.status(200).json({
+    res.status(500).json({
       error: error.message,
       success: false,
       status: 200,
@@ -175,7 +176,6 @@ exports.getReportList = async function (req, res) {
     });
   }
 };
-
 exports.downloadReport = async (req, res) => {
   const {
     Unique_Id,
@@ -189,26 +189,59 @@ exports.downloadReport = async (req, res) => {
   } = req.body;
   const collectionName = `reports_class_of_${Graduation_Year}`;
   const connection = ConnectDB(schoolCode, schoolName, collectionName);
+
+  // Initialize Firebase Admin SDK
+  const firebaseConfig = {
+    apiKey: "AIzaSyCVxc6xzt6EDgyGKiAwSeDZqkXu9Q_Ha8Q",
+    authDomain: "koinoreport-6e006.firebaseapp.com",
+    projectId: "koinoreport-6e006",
+    storageBucket: "koinoreport-6e006.appspot.com",
+    messagingSenderId: "491050722928",
+    appId: "1:491050722928:web:860f184131a446749e36b5",
+    measurementId: "G-15BVY9ZZVP",
+  };
+  // try {
+  var serviceAccount = require(__dirname + "/accounts/account.json");
+  if (storageAppsCount === 0) {
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+      ...firebaseConfig,
+    });
+    storageAppsCount++;
+  }
+  const destinationPath = `${schoolCode}_${schoolName}/class_of_${Graduation_Year}/`;
+
+  const bucket = admin.storage().bucket();
+  const myFile = bucket.file(destinationPath + File_Name);
   // Function to download a file
   var downloadFile = () => {
-    const filePath = path.join(__dirname, "uploaded", File_Name); // Assuming files are stored in the "uploads" directory
-    fs.access(filePath, fs.constants.F_OK, async (err) => {
-      if (err) {
-        // File not found
-        return res.status(404).send("File not found.");
-      }
+    // const filePath = path.join(__dirname, "uploaded", File_Name); // Assuming files are stored in the "uploads" directory
+    // fs.access(filePath, fs.constants.F_OK, async (err) => {
+    //   if (err) {
+    //     // File not found
+    //     return res.status(404).send("File not found.");
+    //   }
 
-      // Set appropriate headers for file download
-      res.setHeader("Content-Type", "application/octet-stream");
-      res.setHeader(
-        "Content-Disposition",
-        `attachment; filename="${File_Name}"`
-      );
+    //   // Set appropriate headers for file download
+    //   res.setHeader("Content-Type", "application/octet-stream");
+    //   res.setHeader(
+    //     "Content-Disposition",
+    //     `attachment; filename="${File_Name}"`
+    //   );
 
-      // Create a read stream from the file and pipe it to the response
-      const fileStream = fs.createReadStream(filePath);
-      await fileStream.pipe(res);
-    });
+    //   // Create a read stream from the file and pipe it to the response
+    //   const fileStream = fs.createReadStream(filePath);
+    //   await fileStream.pipe(res);
+    // });
+
+    const readStream = myFile.createReadStream();
+    console.log(readStream);
+
+    res.setHeader("Content-Type", "application/pdf"); // Set the content type to PDF
+    res.setHeader("Content-Disposition", `attachment; filename=${File_Name}`); // Specify the desired filename for the downloaded file
+    // res.setHeader("Content-Disposition", "attachment; filename=file.jpg"); // Specify the desired filename for the downloaded file
+
+    readStream.pipe(res);
   };
 
   try {
@@ -245,8 +278,18 @@ exports.downloadReport = async (req, res) => {
       updateDoc,
       options
     );
-    console.log(report, currentDownloadsLeft, newDownloadsCount);
-    await downloadFile();
+    if (report) {
+      const [exists] = await myFile.exists();
+      if (exists) {
+        await downloadFile();
+      } else {
+        res.status(200).json({
+          status: 200,
+          message: "File already exist",
+          success: false,
+        });
+      }
+    }
   } catch (error) {
     res.status(200).json({
       message: error.message,
@@ -254,43 +297,20 @@ exports.downloadReport = async (req, res) => {
       status: 200,
     });
   }
-
-  // Reports.findOneAndUpdate;
 };
-// Display detail page for a specific Genre.
-// exports.genre_detail = function (req, res) {
-//   res.send("NOT IMPLEMENTED: Genre detail: " + req.params.id);
-// };
-
-// Display Genre create form on GET.
-// exports.genre_create_get = function (req, res) {
-//   res.send("NOT IMPLEMENTED: Genre create GET");
-// };
-// const getPdfText = async (path) => {
-//   const pdf = await PDFJS.getDocument(path);
-
-//   const pagePromises = [];
-//   for (let j = 1; j <= pdf.numPages; j++) {
-//     const page = pdf.getPage(j);
-
-//     pagePromises.push(
-//       page.then((page) => {
-//         const textContent = page.getTextContent();
-//         return textContent.then((text) => {
-//           return text.items.map((s) => s.str).join("");
-//         });
-//       })
-//     );
-//   }
-
-//   const texts = await Promise.all(pagePromises);
-//   return texts.join("");
-// };
-
-// Function to handle file uploads
 
 // Express route handler for file upload
-exports.uploadFileToFirebase = (req, res) => {
+exports.uploadFileToFirebase = async (req, res) => {
+  var admin = require("firebase-admin");
+
+  const extraInfo = JSON.parse(req.body.extraInfo);
+  const schoolCode = extraInfo.schoolCode;
+  const schoolName = extraInfo.schoolName;
+  const className = extraInfo.className;
+  const semester = extraInfo.semester;
+  const formNumber = extraInfo.formNumber;
+  const graduationYear = extraInfo.className.split("_")[2];
+
   // Initialize Firebase Admin SDK
   const firebaseConfig = {
     apiKey: "AIzaSyCVxc6xzt6EDgyGKiAwSeDZqkXu9Q_Ha8Q",
@@ -301,91 +321,143 @@ exports.uploadFileToFirebase = (req, res) => {
     appId: "1:491050722928:web:860f184131a446749e36b5",
     measurementId: "G-15BVY9ZZVP",
   };
-  admin.initializeApp(firebaseConfig);
-  // admin.initializeApp({
-  //   credential: admin.credential.applicationDefault(),
-  //   storageBucket: "your-storage-bucket-url",
-  // });
+  try {
+    var serviceAccount = require(__dirname + "/accounts/account.json");
+    if (storageAppsCount === 0) {
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+        ...firebaseConfig,
+      });
+      storageAppsCount++;
+    }
 
-  const bucket = admin.storage().bucket();
+    const bucket = admin.storage().bucket();
 
-  // Connect to MongoDB
-  mongoose.connect("mongodb://localhost:27017/fileuploads", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
+    const collectionName = `reports_class_of_${graduationYear}`;
+    const connection = await ConnectDB(schoolCode, schoolName, collectionName);
+    const Reports = mongoose.model("reports_" + className, ReportSchema);
+    const successUploads = [];
+    const failedUploads = [];
+    function uploadFileToFirebaseStorage(
+      singleFile,
+      filename,
+      filePath,
+      fileUniqueID,
+      isLast,
+      counter
+    ) {
+      const destinationPath = `${schoolCode}_${schoolName}/${className}/`;
+      return new Promise((resolve, reject) => {
+        singleFile.mv(filePath, async (error) => {
+          const myFile = bucket.file(destinationPath + filename);
+          const [exists] = await myFile.exists();
+          if (exists) {
+            failedUploads.push({
+              name: singleFile.name,
+              error: "File already exist",
+              nameOndisk: filename,
+            });
 
-  const FileSchema = new mongoose.Schema({
-    filename: String,
-    originalname: String,
-    mimetype: String,
-    size: Number,
-    createdAt: { type: Date, default: Date.now },
-  });
-
-  const File = mongoose.model("File", FileSchema);
-
-  const busboy = Busboy({ headers: req.headers });
-  console.log("vvvvvvvvvvvvvvvvvvvvvvvvvvvvv");
-
-  function uploadFileToFirebaseStorage(file, filename) {
-    console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-
-    return new Promise((resolve, reject) => {
-      const filePath = path.join(os.tmpdir(), filename);
-      const writeStream = fs.createWriteStream(filePath);
-
-      file
-        .pipe(writeStream)
-        .on("finish", () => {
+            console.log("file exist");
+            resolve({});
+            return;
+          }
           bucket
-            .upload(filePath, { destination: filename })
-            .then(() => {
+            .upload(filePath, { destination: destinationPath + filename })
+            .then(async () => {
               fs.unlink(filePath, (error) => {
                 if (error) {
                   console.error("Error deleting temporary file:", error);
                 }
               });
 
-              // Save file details to MongoDB
-              const newFile = new File({
-                filename,
-                originalname: file.originalname,
-                mimetype: file.mimetype,
-                size: file.size,
-              });
+              //=========== Check if file information exist in DB ===================
+              const report = await Reports.findOne({ File_Name: filename });
+              if (report) {
+                failedUploads.push({
+                  name: singleFile.name,
+                  error: "File already exist",
+                  nameOndisk: filename,
+                });
+                console.log("file records exist in mongodb");
+                return;
+              }
 
-              newFile.save((error) => {
-                if (error) {
-                  reject(error);
-                } else {
-                  resolve();
-                }
+              await Reports.create({
+                Unique_Id: fileUniqueID,
+                Graduation_Year: graduationYear,
+                FormNumber: formNumber,
+                Semester: semester,
+                File_Name: filename,
+                AmountPaid: 0,
+                DownloadCount: 0,
+                AccessExpiry: Date.now(),
+                DownloadsLeft: true,
+                Locked: true,
               });
+              successUploads.push({
+                name: singleFile.name,
+                nameOndisk: filename,
+              });
+              resolve();
             })
             .catch((error) => {
               reject(error);
             });
-        })
-        .on("error", (error) => {
-          reject(error);
         });
+      });
+    }
+    if (req.files === null) {
+      return res.status(400);
+    }
+    let counter = 0;
+    const saveReports = async () => {
+      req.files.files.map(async (singleFile, index) => {
+        const fileUniqueID = singleFile?.name?.slice(17, 27);
+        const newFileName = `${graduationYear}_${formNumber}_${semester}_${fileUniqueID}.pdf`;
+        let filePath = `${__dirname}/uploads/${newFileName}`;
+        const isLast = counter === req.files.files.length;
+        await uploadFileToFirebaseStorage(
+          singleFile,
+          newFileName,
+          filePath,
+          fileUniqueID,
+          isLast,
+          counter - 1
+        )
+          .then(() => {
+            if (counter + 1 === req.files.files.length) {
+              res.status(201).json({
+                data: { uploaded: [...successUploads], failedUploads },
+                extraInfo,
+                success: true,
+                status: 201,
+              });
+            }
+            counter = counter + 1;
+          })
+          .catch((error) => {
+            if (counter + 1 === req.files.files.length) {
+              res.status(201).json({
+                data: { uploaded: [...successUploads], failedUploads },
+                extraInfo,
+                success: true,
+                status: 201,
+              });
+            }
+            counter = counter + 1;
+          });
+        // console.log(isLast);
+
+        // Handle the file upload here
+      });
+    };
+    saveReports();
+  } catch (error) {
+    res.status(500).json({
+      error: error.message,
+      success: false,
+      status: 500,
     });
   }
-  console.log("hhhhhhhhhhhhhhhhhhhhhhh");
-  busboy.on("file", (fieldname, file, filename, encoding, mimetype) => {
-    // Handle the file upload here
-    console.log("nnnnnnnnnnnnnnnnnnnnnnnnn");
-    uploadFileToFirebaseStorage(file, filename)
-      .then(() => {
-        res.status(200).json({ message: "File uploaded successfully" });
-      })
-      .catch((error) => {
-        res
-          .status(500)
-          .json({ error: "Failed to upload file", message: error.message });
-      });
-  });
-  // return;
-  req.pipe(busboy);
 };
