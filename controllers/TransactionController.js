@@ -75,39 +75,3 @@ exports.getTransactions = async function (req, res) {
     });
   }
 };
-
-// Payement_Ref: {
-//   type: String,
-//   required: [false, "FormNumber is required"],
-//   default: null,
-// },
-// Unique_Id: {
-//   type: String,
-//   required: [false, "Unique_Id is required"],
-//   default: null,
-// },
-// Form_Number: {
-//   type: String,
-//   required: [false, "Semester is required"],
-//   default: null,
-// },
-// Semester: {
-//   type: String,
-//   required: [false, "Semester is required"],
-//   default: null,
-// },
-// File_Name: {
-//   type: String,
-//   required: [false, "File_Name is required"],
-//   default: null,
-// },
-// Amount_Paid: {
-//   type: Number,
-//   required: [true, "AmountPaid is required"],
-//   default: 0,
-// },
-// PaymentMode: {
-//   type: String,
-//   required: [false, "PaymentMode is required"],
-//   default: null,
-// },

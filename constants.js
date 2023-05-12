@@ -112,7 +112,7 @@ const corsAcceptedUrls = [
 const clientBaseUrl =
   process.env.NODE_ENV === "production"
     ? "https://koinovoter.web.app"
-    : "http://localhost:3000";
+    : "http://localhost:5173";
 
 const password = "dLc2oCkLQGvmKy3m";
 const mongPath =

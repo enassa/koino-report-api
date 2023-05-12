@@ -23,7 +23,7 @@ const app = express();
 // };
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: clientBaseUrl,
   })
 );
 
@@ -34,6 +34,7 @@ app.get("/", (req, res) => {
 app.use(bodyParser.json());
 app.use(fileupload());
 const routes = require("./routes/AllRoutes");
+const { clientBaseUrl } = require("./constants");
 
 // INITIALIZE ROUTES
 app.use("/api", routes);
