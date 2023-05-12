@@ -3,7 +3,8 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const fileupload = require("express-fileupload");
 const cors = require("cors");
-
+const routes = require("./routes/AllRoutes");
+const { clientBaseUrl } = require("./constants");
 // SET UP EXPRESS APP
 const app = express();
 
@@ -21,6 +22,7 @@ const app = express();
 // module.exports = () => {
 //   return getConnection();
 // };
+console.log(clientBaseUrl);
 app.use(
   cors({
     origin: clientBaseUrl,
@@ -33,8 +35,6 @@ app.get("/", (req, res) => {
 
 app.use(bodyParser.json());
 app.use(fileupload());
-const routes = require("./routes/AllRoutes");
-const { clientBaseUrl } = require("./constants");
 
 // INITIALIZE ROUTES
 app.use("/api", routes);
