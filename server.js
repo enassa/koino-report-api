@@ -22,7 +22,6 @@ const app = express();
 // module.exports = () => {
 //   return getConnection();
 // };
-console.log(clientBaseUrl);
 app.use(
   cors({
     origin: clientBaseUrl,
@@ -53,5 +52,5 @@ let myName = 0;
 
 // LISTEN FOR ROUTES
 app.listen(process.env.PORT || "3032", (req, res) => {
-  console.log("now listening on port", "3032,", req);
+  console.log("now listening on port", "3032,");
 });

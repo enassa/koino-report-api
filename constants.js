@@ -120,15 +120,44 @@ const mongPath =
     ? `mongodb+srv://koinoreport:${password}@koinoreport.kd67xh6.mongodb.net`
     : `mongodb://127.0.0.1:27017`;
 
+const serviceCodes = {
+  reportService: "report3b5kb38lv30m3v",
+  superMarket: "marketg76rd7fg86fr37",
+  documentRequest: "document7dbdydf58d6d5",
+};
+
+const serviceRates = {
+  reportsService: 3,
+  reportsDownloads: 5,
+};
+
+const rateAmounts = {
+  downloadReport: 2,
+  subscribeToReports: 5,
+};
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCVxc6xzt6EDgyGKiAwSeDZqkXu9Q_Ha8Q",
+  authDomain: "koinoreport-6e006.firebaseapp.com",
+  projectId: "koinoreport-6e006",
+  storageBucket: "koinoreport-6e006.appspot.com",
+  messagingSenderId: "491050722928",
+  appId: "1:491050722928:web:860f184131a446749e36b5",
+  measurementId: "G-15BVY9ZZVP",
+};
 module.exports = {
   clientBaseUrl,
   corsAcceptedUrls,
   password,
   mongPath,
+  serviceRates,
+  rateAmounts,
+  serviceCodes,
   getHtmlBody,
   getRandomStringKey,
   getRandomInt,
   generateRandomId,
+  firebaseConfig,
   generateShortId,
   generateVeryShortId,
   generateSuperShortId,

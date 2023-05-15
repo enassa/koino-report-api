@@ -41,6 +41,11 @@ const TransactionSchema = new Schema({
     required: [false, "PaymentMode is required"],
     default: null,
   },
+  UserID: {
+    type: String,
+    required: [false, "PaymentMode is required"],
+    default: null,
+  },
   ReportID: {
     type: String,
     required: [false, "PaymentMode is required"],

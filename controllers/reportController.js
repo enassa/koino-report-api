@@ -1,6 +1,6 @@
 const ReportSchema = require("../models/Reportmodel");
+const SubscriptionSchema = require("../models/SubscriptionModel");
 const mongoose = require("mongoose");
-// const getConnection = require("../app");
 const express = require("express");
 const router = express.Router();
 const reader = require("xlsx");
@@ -10,12 +10,11 @@ var root = path.dirname(require.main.filename);
 var tmp = require("tmp");
 var fs = require("fs");
 const multer = require("multer");
-// const { response } = require("express");
 const { file } = require("tmp");
 const PDFJS = require("pdfjs");
 let Reports;
 const ConnectDB = require("./DBCOnnection");
-const { mongPath } = require("../constants");
+const { mongPath, serviceCodes, firebaseConfig } = require("../constants");
 const admin = require("firebase-admin");
 const Busboy = require("busboy");
 const os = require("os");
@@ -160,19 +159,43 @@ exports.uploadReportCards = function (req, res) {
 exports.getReportList = async function (req, res) {
   const { Unique_Id, schoolCode, schoolName, className } = req.body;
   const collectionName = `reports_${className}`;
-  console.log(collectionName);
-  // return;
-  // const Reports = mongoose.model(className, ReportSchema);
-  const connection = await ConnectDB(schoolCode, schoolName, collectionName);
-  const Reports = mongoose.model(collectionName, ReportSchema);
-  console.log(Reports, connection, mongoose.models, Unique_Id);
-  const reports = await Reports.find({ Unique_Id });
-  console.log(reports, Unique_Id);
-  if (reports) {
-    res.status(201).json({
-      data: reports,
-      success: true,
-      status: 201,
+  const subscriptionColelection = "subscriptions";
+  try {
+    console.log(collectionName);
+    // return;
+    // const Reports = mongoose.model(className, ReportSchema);
+    const connection = await ConnectDB(schoolCode, schoolName, collectionName);
+    const Reports = mongoose.model(collectionName, ReportSchema);
+    const Subscription = mongoose.model(
+      subscriptionColelection,
+      SubscriptionSchema
+    );
+    const subscription = await Subscription.findOne({
+      ServiceName: serviceCodes.reportService,
+      Unique_Id,
+    });
+    if (subscription && subscription.CreditsLeft !== 0) {
+      console.log(Reports, connection, mongoose.models, Unique_Id);
+      const reports = await Reports.find({ Unique_Id });
+      console.log(reports, Unique_Id);
+      if (reports) {
+        res.status(201).json({
+          data: reports,
+          success: true,
+          status: 201,
+        });
+        return;
+      }
+    } else {
+      throw Error(
+        "An unsual activity has been detected on this account and reported"
+      );
+    }
+  } catch (error) {
+    res.status(200).json({
+      status: 200,
+      succes: false,
+      message: error.message,
     });
   }
 };
@@ -188,63 +211,33 @@ exports.downloadReport = async (req, res) => {
     ReportId,
   } = req.body;
   const collectionName = `reports_class_of_${Graduation_Year}`;
-  const connection = ConnectDB(schoolCode, schoolName, collectionName);
 
-  // Initialize Firebase Admin SDK
-  const firebaseConfig = {
-    apiKey: "AIzaSyCVxc6xzt6EDgyGKiAwSeDZqkXu9Q_Ha8Q",
-    authDomain: "koinoreport-6e006.firebaseapp.com",
-    projectId: "koinoreport-6e006",
-    storageBucket: "koinoreport-6e006.appspot.com",
-    messagingSenderId: "491050722928",
-    appId: "1:491050722928:web:860f184131a446749e36b5",
-    measurementId: "G-15BVY9ZZVP",
-  };
-  // try {
-  var serviceAccount = require(__dirname + "/accounts/account.json");
-  if (storageAppsCount === 0) {
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
-      ...firebaseConfig,
-    });
-    storageAppsCount++;
-  }
-  const destinationPath = `${schoolCode}_${schoolName}/class_of_${Graduation_Year}/`;
-
-  const bucket = admin.storage().bucket();
-  const myFile = bucket.file(destinationPath + File_Name);
-  // Function to download a file
-  var downloadFile = () => {
-    // const filePath = path.join(__dirname, "uploaded", File_Name); // Assuming files are stored in the "uploads" directory
-    // fs.access(filePath, fs.constants.F_OK, async (err) => {
-    //   if (err) {
-    //     // File not found
-    //     return res.status(404).send("File not found.");
-    //   }
-
-    //   // Set appropriate headers for file download
-    //   res.setHeader("Content-Type", "application/octet-stream");
-    //   res.setHeader(
-    //     "Content-Disposition",
-    //     `attachment; filename="${File_Name}"`
-    //   );
-
-    //   // Create a read stream from the file and pipe it to the response
-    //   const fileStream = fs.createReadStream(filePath);
-    //   await fileStream.pipe(res);
-    // });
-
-    const readStream = myFile.createReadStream();
-    console.log(readStream);
-
-    res.setHeader("Content-Type", "application/pdf"); // Set the content type to PDF
-    res.setHeader("Content-Disposition", `attachment; filename=${File_Name}`); // Specify the desired filename for the downloaded file
-    // res.setHeader("Content-Disposition", "attachment; filename=file.jpg"); // Specify the desired filename for the downloaded file
-
-    readStream.pipe(res);
-  };
+  const connection = await ConnectDB(schoolCode, schoolName, collectionName);
 
   try {
+    // Initialize Firebase Admin SDK
+
+    // try {
+    var serviceAccount = require(__dirname + "/accounts/account.json");
+    if (storageAppsCount === 0) {
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+        ...firebaseConfig,
+      });
+      storageAppsCount++;
+    }
+    const destinationPath = `${schoolCode}_${schoolName}/class_of_${Graduation_Year}/`;
+
+    const bucket = admin.storage().bucket();
+    const myFile = bucket.file(destinationPath + File_Name);
+    // Function to download a file
+    var downloadFile = async () => {
+      const readStream = await myFile.createReadStream();
+      res.setHeader("Content-Type", "application/pdf"); // Set the content type to PDF
+      res.setHeader("Content-Disposition", `attachment; filename=${File_Name}`); // Specify the desired filename for the downloaded file
+      readStream.pipe(res);
+    };
+
     const Reports = mongoose.model(collectionName, ReportSchema);
     var ObjectId = require("mongodb").ObjectId;
     var o_id = new ObjectId(ReportId);
@@ -312,15 +305,7 @@ exports.uploadFileToFirebase = async (req, res) => {
   const graduationYear = extraInfo.className.split("_")[2];
 
   // Initialize Firebase Admin SDK
-  const firebaseConfig = {
-    apiKey: "AIzaSyCVxc6xzt6EDgyGKiAwSeDZqkXu9Q_Ha8Q",
-    authDomain: "koinoreport-6e006.firebaseapp.com",
-    projectId: "koinoreport-6e006",
-    storageBucket: "koinoreport-6e006.appspot.com",
-    messagingSenderId: "491050722928",
-    appId: "1:491050722928:web:860f184131a446749e36b5",
-    measurementId: "G-15BVY9ZZVP",
-  };
+
   try {
     var serviceAccount = require(__dirname + "/accounts/account.json");
     if (storageAppsCount === 0) {
@@ -447,9 +432,6 @@ exports.uploadFileToFirebase = async (req, res) => {
             }
             counter = counter + 1;
           });
-        // console.log(isLast);
-
-        // Handle the file upload here
       });
     };
     saveReports();

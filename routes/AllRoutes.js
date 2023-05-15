@@ -29,6 +29,10 @@ var studentDataController = require("../controllers/studentDataController");
 var reportsControler = require("../controllers/reportController");
 var authenticationControlller = require("../controllers/authenticationController");
 var transactionController = require("../controllers/TransactionController");
+var subscriptionController = require("../controllers/SubscriptionController");
+var serviceAnalyticsController = require("../controllers/ServiceAnalyticsController");
+var complaintController = require("../controllers/ComplainController");
+
 router.get("/students/:id", (req, res, next) => {
   console.log("hello");
   res.send({ type: "GET" });
@@ -46,6 +50,14 @@ router.post("/upload-reportss", reportsControler.uploadFileToFirebase);
 router.post("/recp", transactionController.RecordPayment);
 
 router.post("/transactions", transactionController.getTransactions);
+
+router.post("/complain", complaintController.recordComplaint);
+
+router.post("/subscribe", subscriptionController.recordSubscription);
+
+router.post("/launch", subscriptionController.launchApplication);
+
+router.post("/isc", serviceAnalyticsController.recordInActiveServiceClick);
 
 router.post("/dr", reportsControler.downloadReport);
 
