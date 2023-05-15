@@ -26,7 +26,7 @@ exports.recordInActiveServiceClick = async (req, res) => {
     if (analytic) {
       res.status(200).json({
         data: {},
-        success: false,
+        success: true,
         status: 200,
       });
       return;
