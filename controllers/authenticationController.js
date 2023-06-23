@@ -8,7 +8,8 @@ const ConnectDB = require("./DBCOnnection");
 exports.loginUser = async (req, res) => {
   // console.log(req.socket.localPort);
   const { extraInfo, data } = req.body;
-  console.log(extraInfo, data);
+  // console.log(extraInfo, data);
+
   let schoolCode = extraInfo.schoolCode;
   let schoolName = extraInfo.schoolName;
   let className = extraInfo.className;
@@ -37,7 +38,6 @@ exports.loginUser = async (req, res) => {
     const subscriptions = await Subscription.find({
       Unique_Id: student.Unique_Id,
     });
-    console.log(subscriptions);
 
     res.status(201).json({
       data: {

@@ -177,7 +177,15 @@ exports.getReportList = async function (req, res) {
     if (subscription && subscription.CreditsLeft !== 0) {
       console.log(Reports, connection, mongoose.models, Unique_Id);
       const reports = await Reports.find({ Unique_Id });
-      console.log(reports, Unique_Id);
+      console.log(reports, Unique_Id, reports[0].FormNumber);
+      if (reports[0].FormNumber === null) {
+        res.status(201).json({
+          data: [],
+          success: true,
+          status: 201,
+        });
+        return;
+      }
       if (reports) {
         res.status(201).json({
           data: reports,

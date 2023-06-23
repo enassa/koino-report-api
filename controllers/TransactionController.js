@@ -53,7 +53,7 @@ exports.RecordPayment = async function (req, res) {
       options
     );
 
-    console.log(report);
+    // console.log(report);
     if (transaction) {
       res.status(201).json({
         data: { transaction, report },

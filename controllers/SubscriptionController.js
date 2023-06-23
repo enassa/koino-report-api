@@ -123,7 +123,7 @@ exports.launchApplication = async (req, res) => {
     });
 
     let newUseCount, newCreditsLeft;
-
+    // console.log(oldSubscription);
     if (oldSubscription && oldSubscription.CreditsLeft !== 0) {
       newCreditsLeft = oldSubscription.CreditsLeft - 1;
       newUseCount = oldSubscription.UseCount + 1;
@@ -147,13 +147,13 @@ exports.launchApplication = async (req, res) => {
 
     // upsert:false means do not create property if it does not exist
     const options = { upsert: false, new: true };
-    const subscriptions = await Subscription.findOneAndUpdate(
+    const updatedSubscription = await Subscription.findOneAndUpdate(
       { ServiceName, Unique_Id },
       updateDoc,
       options
     );
     res.status(201).json({
-      data: { subscriptions },
+      data: { subscriptions: updatedSubscription },
       success: true,
       status: 201,
     });

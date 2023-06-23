@@ -22,7 +22,7 @@ const app = express();
 // module.exports = () => {
 //   return getConnection();
 // };
-console.log(clientBaseUrl);
+// console.log(clientBaseUrl);
 app.use(
   cors({
     origin: clientBaseUrl,
